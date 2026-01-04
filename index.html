@@ -1,109 +1,85 @@
+<!-- index.html (UPDATED) -->
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AGRITA ONLINE JASTIP</title>
-
-<link rel="stylesheet" href="style.css">
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <title>AGRITA ONLINE JASTIP</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
-
 <body>
 
-<!-- ================= HEADER ================= -->
 <header class="header">
     <h1>AGRITA ONLINE JASTIP</h1>
-    <p class="tagline">Elegant • Minimal • Trusted</p>
+    <p class="tagline">Elegan • Minimalis • Wanita Modern</p>
 </header>
 
-<!-- ================= SLIDER ================= -->
-<div class="slider-container">
+<!-- SLIDER -->
+<section class="slider-container">
     <div class="slider" id="imageSlider">
-
-        <!-- SLIDE 1 (ADA TEXT OPACITY 50%) -->
-        <div class="slide-wrapper">
-            <img src="image1.jpg" alt="Produk 1">
-            <div class="slide-hint">
-                SLIDE KE KIRI UNTUK MELIHAT GAMBAR YANG LAIN
-            </div>
-        </div>
-
-        <!-- SLIDE 2 -->
-        <div class="slide-wrapper">
-            <img src="image2.jpg" alt="Produk 2">
-        </div>
-
-        <!-- SLIDE 3 -->
-        <div class="slide-wrapper">
-            <img src="image3.jpg" alt="Produk 3">
-        </div>
-
-        <!-- SLIDE 4 -->
-        <div class="slide-wrapper">
-            <img src="image4.jpg" alt="Produk 4">
-        </div>
-
+        <img src="image1.jpg" alt="Produk 1">
+        <img src="image2.jpg" alt="Produk 2">
+        <img src="image3.jpg" alt="Produk 3">
+        <img src="image4.jpg" alt="Produk 4">
     </div>
-</div>
+</section>
 
-<!-- ================= PRODUCT ================= -->
+<!-- NAMA PEMBELI (DIPINDAHKAN KE BAWAH IMAGE) -->
+<section class="buyer-section">
+    <input type="text" id="buyerName" placeholder="Masukkan Nama Anda">
+</section>
+
 <section class="product-section">
-
     <h2 class="product-name" id="productName">Nama Produk</h2>
-    <div class="price" id="productPrice">Rp 299.000</div>
+    <p class="price" id="productPrice">Rp 0</p>
 
-    <!-- NAMA PEMBELI (DIPINDAH KE SINI) -->
-    <div class="option-group">
-        <label>Nama Pembeli</label>
-        <input type="text" id="buyerName" placeholder="Masukkan nama lengkap">
-    </div>
-
-    <!-- PILIH UKURAN -->
     <div class="option-group">
         <label>Pilih Ukuran</label>
         <select id="sizeSelect">
             <option value="">-- Pilih Ukuran --</option>
-            <option value="S">Size S</option>
-            <option value="M">Size M</option>
-            <option value="L">Size L</option>
-            <option value="XL">Size XL</option>
+            <option>XS</option><option>S</option><option>M</option>
+            <option>L</option><option>XL</option><option>XXL</option>
         </select>
         <small id="stockInfo"></small>
     </div>
 
-    <!-- METODE PENGIRIMAN -->
     <div class="option-group">
         <label>Metode Pengiriman</label>
         <div class="radio-group">
-            <label>
-                <input type="radio" name="shipping" value="COD">
-                COD
-            </label>
-            <label>
-                <input type="radio" name="shipping" value="Kirim">
-                Kirim
-            </label>
+            <label><input type="radio" name="shipping" value="COD"> COD</label>
+            <label><input type="radio" name="shipping" value="Kirim"> Kirim</label>
         </div>
     </div>
 
-    <!-- ALAMAT -->
     <div class="address-form" id="addressForm">
         <h3>Alamat Pengiriman</h3>
-        <input type="text" id="fullName" placeholder="Nama Penerima">
-        <input type="tel" id="phoneNumber" placeholder="Nomor WhatsApp">
-        <input type="text" id="street" placeholder="Alamat Jalan">
-        <input type="text" id="district" placeholder="Kecamatan">
-        <input type="text" id="city" placeholder="Kota / Kabupaten">
-        <input type="text" id="province" placeholder="Provinsi">
-        <input type="text" id="postalCode" placeholder="Kode Pos">
+        <input id="fullName" placeholder="Nama Lengkap">
+        <input id="phoneNumber" placeholder="Nomor WhatsApp">
+        <input id="street" placeholder="Jalan & Nomor Rumah">
+        <input id="district" placeholder="Kecamatan">
+        <input id="city" placeholder="Kota / Kabupaten">
+        <input id="province" placeholder="Provinsi">
+        <input id="postalCode" placeholder="Kode Pos">
     </div>
 
-    <!-- RANGKUMAN -->
-    <div class="summary-section">
+    <section class="summary-section">
         <h3>Ringkasan Pesanan</h3>
         <div class="summary-box">
-            <p><strong>Nama:</strong> <span id="summaryBuyer">-</span></p>
-            <p><strong>Produk:</strong> <span id="summaryProduct">-</span></p>
-            <p><strong>Harga:</strong> <span id="summaryPrice">-</span></p>
-            <p><strong>Ukuran:</strong> <span id="summarySize
+            <p>Nama: <span id="summaryBuyer">-</span></p>
+            <p>Produk: <span id="summaryProduct">-</span></p>
+            <p>Harga: <span id="summaryPrice">-</span></p>
+            <p>Ukuran: <span id="summarySize">-</span></p>
+            <p>Metode: <span id="summaryShipping">-</span></p>
+            <p>Alamat: <span id="summaryAddress">-</span></p>
+        </div>
+    </section>
+
+    <button id="whatsappButton" class="wa-button">Kirim ke WhatsApp</button>
+</section>
+
+<footer class="footer">© 2026 AGRITA ONLINE JASTIP</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
