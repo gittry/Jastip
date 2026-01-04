@@ -1,168 +1,60 @@
-/* ================= FORCE DATABASE RELOAD ================= */
-const DB_URL = "Database.txt?reload=" + new Date().getTime();
+// script.js (UPDATED – REAL SWIPE SLIDER)
+const slider = document.getElementById("imageSlider");
+let index = 0;
+let startX = 0;
+let isDragging = false;
 
-let database = {};
-let selectedSize = "";
-let selectedShipping = "";
+const images = slider.children;
+const total = images.length;
 
-/* ================= LOAD DATABASE ================= */
-fetch(DB_URL)
-    .then(response => response.text())
-    .then(text => {
-        text.split("\n").forEach(line => {
-            const parts = line.split("=");
-            if (parts.length === 2) {
-                database[parts[0].trim()] = parts[1].trim();
-            }
-        });
-
-        document.getElementById("productName").innerText =
-            database.product || "Nama Produk";
-
-        document.getElementById("productPrice").innerText =
-            database.price
-                ? "Rp " + Number(database.price).toLocaleString("id-ID")
-                : "Rp 0";
-
-        updateSummary();
-    })
-    .catch(() => {
-        alert("Gagal memuat database");
-    });
-
-/* ================= ELEMENTS ================= */
-const buyerName = document.getElementById("buyerName");
-const sizeSelect = document.getElementById("sizeSelect");
-const stockInfo = document.getElementById("stockInfo");
-const shippingRadios = document.querySelectorAll('input[name="shipping"]');
-const addressForm = document.getElementById("addressForm");
-const waButton = document.getElementById("whatsappButton");
-
-/* Summary */
-const summaryBuyer = document.getElementById("summaryBuyer");
-const summaryProduct = document.getElementById("summaryProduct");
-const summaryPrice = document.getElementById("summaryPrice");
-const summarySize = document.getElementById("summarySize");
-const summaryShipping = document.getElementById("summaryShipping");
-const summaryAddress = document.getElementById("summaryAddress");
-
-/* Address inputs */
-const fullName = document.getElementById("fullName");
-const phoneNumber = document.getElementById("phoneNumber");
-const street = document.getElementById("street");
-const district = document.getElementById("district");
-const city = document.getElementById("city");
-const province = document.getElementById("province");
-const postalCode = document.getElementById("postalCode");
-
-/* ================= BUYER NAME ================= */
-buyerName.addEventListener("input", updateSummary);
-
-/* ================= SIZE ================= */
-sizeSelect.addEventListener("change", () => {
-    selectedSize = sizeSelect.value;
-
-    if (database[selectedSize]) {
-        stockInfo.innerText = `Stok tersedia: ${database[selectedSize]} pcs`;
-    } else {
-        stockInfo.innerText = "Stok tidak tersedia";
-    }
-
-    updateSummary();
-});
-
-/* ================= SHIPPING ================= */
-shippingRadios.forEach(radio => {
-    radio.addEventListener("change", () => {
-        selectedShipping = radio.value;
-        addressForm.style.display =
-            selectedShipping === "Kirim" ? "block" : "none";
-        updateSummary();
-    });
-});
-
-/* ================= ADDRESS INPUT ================= */
-[
-    fullName,
-    street,
-    district,
-    city,
-    province,
-    postalCode
-].forEach(input => {
-    input.addEventListener("input", updateSummary);
-});
-
-/* ================= UPDATE SUMMARY ================= */
-function updateSummary() {
-    summaryBuyer.innerText = buyerName.value || "-";
-    summaryProduct.innerText = database.product || "-";
-    summaryPrice.innerText = database.price
-        ? "Rp " + Number(database.price).toLocaleString("id-ID")
-        : "-";
-    summarySize.innerText = selectedSize || "-";
-    summaryShipping.innerText = selectedShipping || "-";
-
-    if (selectedShipping === "Kirim") {
-        const addressText = `
-${street.value}, ${district.value},
-${city.value}, ${province.value},
-${postalCode.value}
-        `.replace(/\n/g, " ").trim();
-
-        summaryAddress.innerText = addressText || "-";
-    } else {
-        summaryAddress.innerText = "COD";
-    }
+function updateSlide() {
+    slider.style.transform = `translateX(-${index * 100}%)`;
 }
 
-/* ================= WHATSAPP SEND ================= */
-waButton.addEventListener("click", () => {
-    if (!buyerName.value) {
-        alert("Masukkan nama terlebih dahulu");
-        return;
-    }
-
-    if (!selectedSize) {
-        alert("Pilih ukuran terlebih dahulu");
-        return;
-    }
-
-    if (!selectedShipping) {
-        alert("Pilih metode pengiriman");
-        return;
-    }
-
-    if (selectedShipping === "Kirim" && !phoneNumber.value) {
-        alert("Nomor WhatsApp wajib diisi");
-        return;
-    }
-
-    const message = `
-*PESANAN AGRITA ONLINE JASTIP*
-Nama    : ${buyerName.value}
-Produk  : ${database.product}
-Harga   : Rp ${Number(database.price).toLocaleString("id-ID")}
-Ukuran  : ${selectedSize}
-Metode  : ${selectedShipping}
-Alamat  : ${summaryAddress.innerText}
-
-Terima kasih 🙏
-    `;
-
-    const waLink = `https://wa.me/${database.whatsapp}?text=${encodeURIComponent(message)}`;
-    window.open(waLink, "_blank");
+slider.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+    isDragging = true;
 });
 
-/* ================= SLIDER ================= */
-const slider = document.getElementById("imageSlider");
-const slideLeft = document.getElementById("slideLeft");
-const slideRight = document.getElementById("slideRight");
+slider.addEventListener("touchend", e => {
+    if (!isDragging) return;
+    const endX = e.changedTouches[0].clientX;
+    const diff = startX - endX;
 
-slideLeft.addEventListener("click", () => {
-    slider.scrollBy({ left: -300, behavior: "smooth" });
+    if (diff > 50 && index < total - 1) index++;
+    if (diff < -50 && index > 0) index--;
+
+    updateSlide();
+    isDragging = false;
 });
 
-slideRight.addEventListener("click", () => {
-    slider.scrollBy({ left: 300, behavior: "smooth" });
-});
+/* DATABASE RELOAD */
+fetch("Database.txt?reload=" + Date.now())
+.then(r=>r.text())
+.then(t=>{
+    const db={}
+    t.split("\n").forEach(l=>{
+        const [k,v]=l.split("=")
+        if(k&&v) db[k.trim()]=v.trim()
+    })
+    productName.innerText=db.product
+    productPrice.innerText="Rp "+Number(db.price).toLocaleString("id-ID")
+})
+
+/* SUMMARY + WA */
+buyerName.oninput=()=>summaryBuyer.innerText=buyerName.value
+sizeSelect.onchange=()=>summarySize.innerText=sizeSelect.value
+
+document.querySelectorAll("input[name=shipping]").forEach(r=>{
+    r.onchange=()=>{
+        summaryShipping.innerText=r.value
+        addressForm.style.display=r.value==="Kirim"?"block":"none"
+    }
+})
+
+whatsappButton.onclick=()=>{
+    const msg=`Pesanan AGRITA
+Nama: ${buyerName.value}
+Ukuran: ${sizeSelect.value}`
+    window.open("https://wa.me/628123456789?text="+encodeURIComponent(msg))
+}
