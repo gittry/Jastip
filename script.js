@@ -1,98 +1,101 @@
-// ================= DATABASE =================
+/* ================= FORCE DATABASE RELOAD ================= */
+const DB_URL = "Database.txt?reload=" + new Date().getTime();
+
 let database = {};
 let selectedSize = "";
 let selectedShipping = "";
 
-// ================= LOAD DATABASE TXT =================
-fetch("Database.txt")
+/* ================= LOAD DATABASE ================= */
+fetch(DB_URL)
     .then(response => response.text())
     .then(text => {
-        /*
-        FORMAT Database.txt:
-        product= Agrita Exclusive Women Wear
-        price=299000
-        whatsapp=628123456789
-        XS=5
-        S=8
-        M=10
-        L=7
-        XL=4
-        XXL=2
-        */
-
         text.split("\n").forEach(line => {
-            const [key, value] = line.split("=");
-            if (key && value) {
-                database[key.trim()] = value.trim();
+            const parts = line.split("=");
+            if (parts.length === 2) {
+                database[parts[0].trim()] = parts[1].trim();
             }
         });
 
-        // Set initial product data
-        document.getElementById("productName").innerText = database.product;
+        document.getElementById("productName").innerText =
+            database.product || "Nama Produk";
+
         document.getElementById("productPrice").innerText =
-            "Rp " + Number(database.price).toLocaleString("id-ID");
+            database.price
+                ? "Rp " + Number(database.price).toLocaleString("id-ID")
+                : "Rp 0";
+
+        updateSummary();
+    })
+    .catch(() => {
+        alert("Gagal memuat database");
     });
 
-// ================= ELEMENTS =================
+/* ================= ELEMENTS ================= */
+const buyerName = document.getElementById("buyerName");
 const sizeSelect = document.getElementById("sizeSelect");
 const stockInfo = document.getElementById("stockInfo");
 const shippingRadios = document.querySelectorAll('input[name="shipping"]');
 const addressForm = document.getElementById("addressForm");
 const waButton = document.getElementById("whatsappButton");
 
-// Summary elements
+/* Summary */
+const summaryBuyer = document.getElementById("summaryBuyer");
 const summaryProduct = document.getElementById("summaryProduct");
 const summaryPrice = document.getElementById("summaryPrice");
 const summarySize = document.getElementById("summarySize");
 const summaryShipping = document.getElementById("summaryShipping");
 const summaryAddress = document.getElementById("summaryAddress");
 
-// ================= SIZE CHANGE =================
+/* Address inputs */
+const fullName = document.getElementById("fullName");
+const phoneNumber = document.getElementById("phoneNumber");
+const street = document.getElementById("street");
+const district = document.getElementById("district");
+const city = document.getElementById("city");
+const province = document.getElementById("province");
+const postalCode = document.getElementById("postalCode");
+
+/* ================= BUYER NAME ================= */
+buyerName.addEventListener("input", updateSummary);
+
+/* ================= SIZE ================= */
 sizeSelect.addEventListener("change", () => {
     selectedSize = sizeSelect.value;
 
-    if (!selectedSize || !database[selectedSize]) {
+    if (database[selectedSize]) {
+        stockInfo.innerText = `Stok tersedia: ${database[selectedSize]} pcs`;
+    } else {
         stockInfo.innerText = "Stok tidak tersedia";
-        return;
     }
 
-    stockInfo.innerText = `Stok tersedia: ${database[selectedSize]} pcs`;
     updateSummary();
 });
 
-// ================= SHIPPING METHOD =================
+/* ================= SHIPPING ================= */
 shippingRadios.forEach(radio => {
     radio.addEventListener("change", () => {
         selectedShipping = radio.value;
-
-        if (selectedShipping === "Kirim") {
-            addressForm.style.display = "block";
-        } else {
-            addressForm.style.display = "none";
-            summaryAddress.innerText = "COD";
-        }
-
+        addressForm.style.display =
+            selectedShipping === "Kirim" ? "block" : "none";
         updateSummary();
     });
 });
 
-// ================= ADDRESS INPUT =================
-const addressInputs = [
-    "fullName",
-    "phoneNumber",
-    "street",
-    "district",
-    "city",
-    "province",
-    "postalCode"
-];
-
-addressInputs.forEach(id => {
-    document.getElementById(id).addEventListener("input", updateSummary);
+/* ================= ADDRESS INPUT ================= */
+[
+    fullName,
+    street,
+    district,
+    city,
+    province,
+    postalCode
+].forEach(input => {
+    input.addEventListener("input", updateSummary);
 });
 
-// ================= UPDATE SUMMARY =================
+/* ================= UPDATE SUMMARY ================= */
 function updateSummary() {
+    summaryBuyer.innerText = buyerName.value || "-";
     summaryProduct.innerText = database.product || "-";
     summaryPrice.innerText = database.price
         ? "Rp " + Number(database.price).toLocaleString("id-ID")
@@ -101,28 +104,32 @@ function updateSummary() {
     summaryShipping.innerText = selectedShipping || "-";
 
     if (selectedShipping === "Kirim") {
-        const address = `
-${fullName.value},
-${street.value},
-${district.value},
-${city.value},
-${province.value},
+        const addressText = `
+${street.value}, ${district.value},
+${city.value}, ${province.value},
 ${postalCode.value}
         `.replace(/\n/g, " ").trim();
 
-        summaryAddress.innerText = address || "-";
+        summaryAddress.innerText = addressText || "-";
+    } else {
+        summaryAddress.innerText = "COD";
     }
 }
 
-// ================= WHATSAPP SEND =================
+/* ================= WHATSAPP SEND ================= */
 waButton.addEventListener("click", () => {
+    if (!buyerName.value) {
+        alert("Masukkan nama terlebih dahulu");
+        return;
+    }
+
     if (!selectedSize) {
-        alert("Silakan pilih ukuran terlebih dahulu");
+        alert("Pilih ukuran terlebih dahulu");
         return;
     }
 
     if (!selectedShipping) {
-        alert("Silakan pilih metode pengiriman");
+        alert("Pilih metode pengiriman");
         return;
     }
 
@@ -133,19 +140,29 @@ waButton.addEventListener("click", () => {
 
     const message = `
 *PESANAN AGRITA ONLINE JASTIP*
-
-Produk : ${database.product}
-Harga  : Rp ${Number(database.price).toLocaleString("id-ID")}
-Ukuran : ${selectedSize}
-Metode : ${selectedShipping}
-
-${selectedShipping === "Kirim" ? 
-`Alamat:
-${summaryAddress.innerText}` : ""}
+Nama    : ${buyerName.value}
+Produk  : ${database.product}
+Harga   : Rp ${Number(database.price).toLocaleString("id-ID")}
+Ukuran  : ${selectedSize}
+Metode  : ${selectedShipping}
+Alamat  : ${summaryAddress.innerText}
 
 Terima kasih 🙏
     `;
 
-    const waURL = `https://wa.me/${database.whatsapp}?text=${encodeURIComponent(message)}`;
-    window.open(waURL, "_blank");
+    const waLink = `https://wa.me/${database.whatsapp}?text=${encodeURIComponent(message)}`;
+    window.open(waLink, "_blank");
+});
+
+/* ================= SLIDER ================= */
+const slider = document.getElementById("imageSlider");
+const slideLeft = document.getElementById("slideLeft");
+const slideRight = document.getElementById("slideRight");
+
+slideLeft.addEventListener("click", () => {
+    slider.scrollBy({ left: -300, behavior: "smooth" });
+});
+
+slideRight.addEventListener("click", () => {
+    slider.scrollBy({ left: 300, behavior: "smooth" });
 });
